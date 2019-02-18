@@ -1,0 +1,22 @@
+os: linux
+dist: xenial
+sudo: required
+language: cpp
+compiler:
+  - gcc
+script: 
+  # Check versions of gcc, g++ and cmake
+  - gcc -v && g++ -v && cmake --version
+  # Run your build commands next
+  - mkdir -p build
+  - cd build
+  - cmake ..
+  - make
+ 
+install:
+
+  - sudo apt-get update;
+  - sudo apt-get install -qq libusb-1.0-0-dev;
+
+
+

@@ -1,7 +1,7 @@
 #include <librealsense2/rs.hpp>
 #include <iostream>
 
-void main()
+int main()
 {
 	rs2::context ctx;
 	auto list = ctx.query_devices(); // Get a snapshot of currently connected devices
@@ -26,4 +26,5 @@ void main()
 
 	}
 
+	return 0;
 }

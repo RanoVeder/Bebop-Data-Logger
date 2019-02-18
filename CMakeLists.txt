@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 project(bebopdatalogger VERSION 0.1 LANGUAGES C CXX)
 
 #Dependencies
+
+
 if (UNIX)
-find_package(realsense2 REQUIRED)
+link_libraries(pthread)
 endif()
 
 if(NOT realsense2_FOUND)
@@ -14,7 +16,6 @@ execute_process(COMMAND git submodule update --init --recursive vendor/librealse
 set(BUILD_GRAPHICAL_EXAMPLES CACHE BOOL FALSE)
 set(BUILD_EXAMPLES CACHE BOOL FALSE)
 set(BUILD_SHARED_LIBS CACHE BOOL FALSE)
-set(BUILD_EASYLOGGINGPP CACHE BOOL FALSE)
 set(BUILD_WITH_STATIC_CRT CACHE BOOL FALSE)
 set(BUILD_WITH_TM2 CACHE BOOL FALSE)
 set(ENABLE_CCACHE CACHE BOOL FALSE)
@@ -26,23 +27,14 @@ set(realsense2_LIBRARY realsense2)
 
 endif()
 
-#realsense options
-
-
-
-########################################################
-#App Options
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 add_executable(BebopDataLogger src/main.cpp)
 target_link_libraries(BebopDataLogger ${realsense2_LIBRARY})
 
-
-
-
 include_directories(include ${realsense2_INCLUDE_DIR})
-install(TARGETS BebopDataLogger DESTINATION bin)
+
 
 
 
