@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 project(bebopdatalogger VERSION 0.1 LANGUAGES C CXX)
 
+
+
 #Dependencies
 
 
@@ -29,6 +31,9 @@ endif()
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+
+add_subdirectory(utils)
 
 add_executable(BebopDataLogger src/main.cpp)
 target_link_libraries(BebopDataLogger ${realsense2_LIBRARY})
