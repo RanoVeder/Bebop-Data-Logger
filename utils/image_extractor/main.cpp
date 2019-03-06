@@ -3,8 +3,6 @@
 #include <string>
 #include <sys/stat.h>
 
-#define IMAGE_WIDTH 1280
-#define IMAGE_HEIGHT 720
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -12,7 +10,7 @@
 struct DataFrame
 {
     uint64_t time;
-    char data[IMAGE_WIDTH*IMAGE_HEIGHT];
+    char data[1280*720];
 };
 
 int main(int argc, char* argv[])
@@ -21,8 +19,8 @@ int main(int argc, char* argv[])
         std::cout << "Usage: image_extractor source_folder destination_folder" << std::endl;
         return 0;
     }
-    std::string left_file_path = std::string(argv[1]) + "/" + "raw_data_left_camera";
-    std::string right_file_path = std::string(argv[1]) + "/" + "raw_data_right_camera";
+    std::string left_file_path = std::string(argv[1]) + "/" + "data_left_camera_raw";
+    std::string right_file_path = std::string(argv[1]) + "/" + "data_right_camera_raw";
     std::string destination_folder = std::string(argv[2]);
 
 
@@ -45,11 +43,11 @@ int main(int argc, char* argv[])
     {
         left_file.read((char *)&df, sizeof(DataFrame));
         std::string leftName = destination_folder + "/L_" + std::to_string(df.time) + ".png";
-        stbi_write_png(leftName.c_str(), IMAGE_WIDTH, IMAGE_HEIGHT, 1, &df.data, 1280);
+        stbi_write_png(leftName.c_str(), 1280, 720, 1, &df.data, 1280);
 
         right_file.read((char *)&df, sizeof(DataFrame));
         std::string rightName = destination_folder + "/R_" + std::to_string(df.time) + ".png";
-        stbi_write_png(rightName.c_str(), IMAGE_WIDTH, IMAGE_HEIGHT, 1, &df.data, 1280);
+        stbi_write_png(rightName.c_str(), 1280, 720, 1, &df.data, 1280);
     }
 
 
