@@ -3,7 +3,7 @@ project(bebopdataloggerToolsImageExtractor VERSION 0.1 LANGUAGES C CXX)
 
 
 
-add_executable(bebopdataloggerToolsImageExtractor main.cpp)
+add_executable(image_extractor main.cpp)
 
 
 

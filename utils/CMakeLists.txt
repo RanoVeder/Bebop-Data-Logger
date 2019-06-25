@@ -3,3 +3,4 @@ project(bebopdataloggerTools VERSION 0.1 LANGUAGES C CXX)
 
 
 add_subdirectory(image_extractor)
+add_subdirectory(txt_generator)

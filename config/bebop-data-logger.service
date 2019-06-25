@@ -1,0 +1,9 @@
+[Unit]
+Description=Starts the Bebop Logging Server.
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /usr/bin/bdl_service.sh
+
+[Install]
+WantedBy=multi-user.target
