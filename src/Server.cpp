@@ -3,25 +3,28 @@
 
 #include <sys/socket.h>	// for socket(), bind(), listen(), accept()
 #include <netinet/in.h>	// for PF_INET, SOCK_STREAM, IPPROTO_TCP 
-
+#include <errno.h>
 #include <string.h>
 #include <unistd.h>	
 #include <errno.h>
 #include "Logger.h"
 
-Server::Server(int port) : port(port)
-{
-
-};
-
-void Server::init(DataLogger *logger)
+Server::Server(std::shared_ptr<DataLogger> logger, int port) : port(port)
 {
     this->logger = logger;
-
+    this->port = port;
+    
     socket_fd = socket(PF_INET, SOCK_STREAM, 0);
     if(socket_fd == 0)
     {
         DEBUG_ERROR("Could not create socket");
+        return;
+    }
+
+    int enable = 1;
+    if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+    {
+        DEBUG_ERROR("Could set socket options");
         return;
     }
 
@@ -32,9 +35,10 @@ void Server::init(DataLogger *logger)
     address.sin_port = htons(port);
     address.sin_addr.s_addr = htonl(INADDR_ANY);    
    
-    if ( bind( socket_fd, (sockaddr *)&address, sizeof(sockaddr_in) ) < 0 )
+    int ret = 0;
+    if ((ret = bind( socket_fd, (sockaddr *)&address, sizeof(sockaddr_in))) < 0 )
     { 
-        DEBUG_ERROR("Failed to bind");
+        DEBUG_ERROR("Failed to bind: return value {}, {}", ret, errno);
         return;
     }
 
@@ -44,7 +48,14 @@ void Server::init(DataLogger *logger)
         return;
     }
 
+};
+
+Server::~Server()
+{
+    close(client_fd);
+    close(socket_fd);
 }
+
 
 
 void Server::receiveData()
@@ -77,6 +88,7 @@ void Server::receiveData()
                 if(!running)
                 {
                     break;
+
                 }
                 switch((int)f.code)
                 {
@@ -108,19 +120,21 @@ void Server::receiveData()
     }
 }
 
-void Server::start()
+void Server::Start()
 {
     running = true;
 }
 
 
-void Server::stop()
+void Server::Stop()
 {
     DEBUG_INFO("Stopping server");
 
-    running = false;
+
     threadRunning = false;
-    close(client_fd);
-    close(socket_fd);
+    running = false;
+
+    shutdown(socket_fd, SHUT_RDWR);
+    shutdown(client_fd, SHUT_RDWR);
 }
 

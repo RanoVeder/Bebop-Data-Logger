@@ -1,9 +1,10 @@
 #pragma once
-#include "AppStates.h"
-
 #include <librealsense2/rs.hpp>
 #include <thread>
+#include <atomic>
+#include <memory>
 
+#include "AppStates.h"
 #include "Server.h"
 #include "DataLogger.h"
 
@@ -14,24 +15,25 @@ public:
     App();
     ~App();
 
-    void init();
-    void start();
-    void stop();
-private:
-    void initRealsense();
+    void Start();
+    void Stop();
 
 private:
-rs2::pipeline pipe;
+    void InitRealsense();
 
-Server *server;
-DataLogger *logger;
+private:
+    //App modules
+    std::shared_ptr<Server> server;
+    std::shared_ptr<DataLogger> logger;
 
-bool running = true;
+    //Logging threads (It would be better if these were spawned by Datalogger itself)
+    std::thread image_logging_thread;
+    std::thread data_logging_thread;
+    std::thread server_thread;
+    
+    //Realsense 'state'
+    std::shared_ptr<rs2::pipeline> pipe;
 
-std::thread image_logging_thread;
-std::thread data_logging_thread;
-std::thread server_thread;
-
-AppStates appState;
-
+    std::atomic_bool running{true};
+    AppStates appState;
 };

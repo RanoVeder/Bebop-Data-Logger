@@ -1,34 +1,32 @@
-#include "App.h"
-
 #include <iostream>
 #include <signal.h>
+#include <memory>
+
+#include "App.h"
 #include "Logger.h"
 
-
-
-App *app;
+std::shared_ptr<App> app;
 
 void onClose(int s)
 {
-	DEBUG_INFO("Catched exit signal: {0}", s);
-	app->stop();
-
+	app->Stop();
 }
 
 int main()
 {
 	Logger::Init();
-	app = new App();
+	app = std::make_shared<App>();
+	
 	struct sigaction sigIntHandler;
-
 	sigIntHandler.sa_handler = onClose;
 	sigemptyset(&sigIntHandler.sa_mask);
 	sigIntHandler.sa_flags = 0;
 
 	sigaction(SIGINT, &sigIntHandler, NULL);
 
-	app->init();
-	app->start();
+	app->Start();
 
+	//Force app deallocation before the logging singleton deallocates :)
+	app.reset();
 	return 0;
 }

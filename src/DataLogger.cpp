@@ -5,18 +5,9 @@
 
 #include <ctime>
 #include <chrono>
+#include <thread>
 
-DataLogger::DataLogger()
-{
-
-}
-
-DataLogger::~DataLogger()
-{
-
-}
-
-void DataLogger::init(rs2::pipeline *pipe)
+DataLogger::DataLogger(std::shared_ptr<rs2::pipeline> pipe)
 {
     rs2_pipe = pipe;
     auto now = std::chrono::system_clock::now();
@@ -35,28 +26,37 @@ void DataLogger::init(rs2::pipeline *pipe)
     right_image_file = std::fstream(folderPath + "/data_right_camera_raw", std::ios::out | std::ios::binary);
 }
 
-void DataLogger::start()
+
+DataLogger::~DataLogger()
+{
+    //There is no need for this as the files will be closed when the stack unwinds.
+    data_logging_file.close();
+    left_image_file.close();
+    right_image_file.close();
+}
+
+void DataLogger::Start()
 {
     running = true;
 }
 
-void DataLogger::pause()
+void DataLogger::Pause()
 {
     paused = true;
 }
 
-void DataLogger::resume()
+void DataLogger::Resume()
 {
     paused = false;
 }
 
 
-void DataLogger::stop()
+void DataLogger::Stop()
 {
     DEBUG_INFO("Wrote {0} images", image_count);
-    paused = true;
-    running = false;
     threadRunning = false;
+    running = false;
+    paused = true;
 }
 
 void DataLogger::queueDataFrame(DataFrame f)
@@ -90,7 +90,7 @@ void DataLogger::imageLogger()
                 right_image_file.write((char*)frameR.get_data(), 1280*720);
                 image_count++;
                 DEBUG_INFO("Wrote {0} images", image_count);
-
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
         }
     }

@@ -3,6 +3,8 @@
 #include <librealsense2/rs.hpp>
 #include <queue>
 #include <mutex>
+#include <atomic>
+#include <memory>
 
 
 #include "DataFrame.h"
@@ -10,15 +12,14 @@
 class DataLogger
 {
     public:
-        DataLogger();
+        DataLogger(std::shared_ptr<rs2::pipeline> pipe);
         ~DataLogger();
 
-        void init(rs2::pipeline *pipe);
-        void stop();
-        void start();
+        void Stop();
+        void Start();
 
-        void resume();
-        void pause();
+        void Resume();
+        void Pause();
 
         void queueDataFrame(DataFrame frame);
 
@@ -26,15 +27,16 @@ class DataLogger
         void imageLogger();
 
     private:
-    rs2::pipeline *rs2_pipe;
+    std::shared_ptr<rs2::pipeline> rs2_pipe;
     std::queue<DataFrame> dataFrameQueue;
     std::mutex lock;
 
     int image_count = 0;
 
-    bool threadRunning = true;
-    bool running = false;
-    bool paused = true;
+    std::atomic_bool threadRunning{true};
+    std::atomic_bool running{false};
+    std::atomic_bool paused{true};
+
 
     std::fstream left_image_file;
     std::fstream right_image_file;

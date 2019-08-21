@@ -1,26 +1,31 @@
 #pragma once
+
+#include <atomic>
+#include <memory>
+
 #include "AppStates.h"
 #include "DataFrame.h"
 
 #include "DataLogger.h"
 
+
 class Server
 {
     public:
-        Server(int port);
+        Server(std::shared_ptr<DataLogger> logger, int port);
+        ~Server();
 
-        void init(DataLogger *logger);
-        void start();
-        void stop();
+        void Start();
+        void Stop();
 
         void receiveData();
 
         inline AppStates getState() const {return state;};
 
     private:
-        bool threadRunning = true;
-        bool running = false;
-        DataLogger *logger;
+        std::atomic_bool threadRunning{true};
+        std::atomic_bool running{false};
+        std::shared_ptr<DataLogger> logger;
 
         int port;
         int socket_fd, client_fd;
